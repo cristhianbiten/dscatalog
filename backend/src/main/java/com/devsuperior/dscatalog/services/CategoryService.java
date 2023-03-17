@@ -1,5 +1,8 @@
 package com.devsuperior.dscatalog.services;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStream;
 import java.util.Optional;
 
 import javax.persistence.EntityNotFoundException;
