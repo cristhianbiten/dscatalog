@@ -2,7 +2,9 @@ package com.devsuperior.dscatalog.entities;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -17,77 +19,84 @@ import javax.persistence.Table;
 @Table(name = "tb_category")
 public class Category implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	private String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String name;
 
-	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-	private Instant createdAt;
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant createdAt;
 
-	@Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
-	private Instant updatedAt;
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private Instant updatedAt;
 
-	public Category() {
+    private Set<Product> products = new HashSet<>();
 
-	}
+    public Category() {
 
-	public Category(Long id, String name) {
-		this.id = id;
-		this.name = name;
-	}
+    }
 
-	public Long getId() {
-		return id;
-	}
+    public Category(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Instant getUpdatedAt() {
-		return updatedAt;
-	}
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(id);
-	}
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Category other = (Category) obj;
-		return Objects.equals(id, other.id);
-	}
+    public Set<Product> getProducts() {
+        return products;
+    }
 
-	@PrePersist
-	public void prePersist() {
-		createdAt = Instant.now();
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
-	@PreUpdate
-	public void preUpdated() {
-		updatedAt = Instant.now();
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Category other = (Category) obj;
+        return Objects.equals(id, other.id);
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void preUpdated() {
+        updatedAt = Instant.now();
+    }
+
 
 }
