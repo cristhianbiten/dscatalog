@@ -3,6 +3,7 @@ package com.devsuperior.dscatalog.services;
 import com.devsuperior.dscatalog.dto.CategoryDTO;
 import com.devsuperior.dscatalog.dto.RoleDTO;
 import com.devsuperior.dscatalog.dto.UserDTO;
+import com.devsuperior.dscatalog.dto.UserInsertDTO;
 import com.devsuperior.dscatalog.entities.Category;
 import com.devsuperior.dscatalog.entities.Role;
 import com.devsuperior.dscatalog.entities.User;
@@ -16,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,69 +27,73 @@ import java.util.Optional;
 @Service
 public class UserService {
 
-	@Autowired
-	private UserRepository repository;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
-	@Autowired
-	private RoleRepository roleRepository;
+    @Autowired
+    private UserRepository repository;
 
-	@Transactional(readOnly = true)
-	public Page<UserDTO> findAllPaged(Pageable pageable) {
+    @Autowired
+    private RoleRepository roleRepository;
 
-		Page<User> list = repository.findAll(pageable);
+    @Transactional(readOnly = true)
+    public Page<UserDTO> findAllPaged(Pageable pageable) {
 
-		return list.map(x -> new UserDTO(x));
-	}
+        Page<User> list = repository.findAll(pageable);
 
-	@Transactional(readOnly = true)
-	public UserDTO findById(Long id) {
-		Optional<User> obj = repository.findById(id);
-		User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not Found"));
-		return new UserDTO(entity);
-	}
+        return list.map(x -> new UserDTO(x));
+    }
 
-	@Transactional
-	public UserDTO insert(UserDTO dto) {
-		User entity = new User();
-		copyDtoToEntity(entity, dto);
-		entity = repository.save(entity);
-		return new UserDTO(entity);
-	}
+    @Transactional(readOnly = true)
+    public UserDTO findById(Long id) {
+        Optional<User> obj = repository.findById(id);
+        User entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not Found"));
+        return new UserDTO(entity);
+    }
 
-	@Transactional
-	public UserDTO update(Long id, UserDTO dto) {
-		try {
-			User entity = repository.getOne(id);
-			copyDtoToEntity(entity, dto);
-			entity = repository.save(entity);
-			return new UserDTO(entity);
-		} catch (EntityNotFoundException e) {
-			throw new ResourceNotFoundException("Id not found " + id);
-		}
-	}
+    @Transactional
+    public UserDTO insert(UserInsertDTO dto) {
+        User entity = new User();
+        copyDtoToEntity(entity, dto);
+        entity.setPassword(passwordEncoder.encode(dto.getPassword()));
+        entity = repository.save(entity);
+        return new UserDTO(entity);
+    }
 
-	public void delete(Long id) {
-		try {
-			repository.deleteById(id);
-		} catch (EmptyResultDataAccessException e) {
-			throw new ResourceNotFoundException("Id not found " + id);
-		} catch (DataIntegrityViolationException e) {
-			throw new DatabaseException("Integrity violation");
-		}
+    @Transactional
+    public UserDTO update(Long id, UserDTO dto) {
+        try {
+            User entity = repository.getOne(id);
+            copyDtoToEntity(entity, dto);
+            entity = repository.save(entity);
+            return new UserDTO(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Id not found " + id);
+        }
+    }
 
-	}
+    public void delete(Long id) {
+        try {
+            repository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException("Id not found " + id);
+        } catch (DataIntegrityViolationException e) {
+            throw new DatabaseException("Integrity violation");
+        }
 
-	public void copyDtoToEntity(User entity, UserDTO dto) {
+    }
 
-		entity.setFirstName(dto.getFirstName());
-		entity.setLastName(dto.getLastName());
-		entity.setEmail(dto.getEmail());
+    public void copyDtoToEntity(User entity, UserDTO dto) {
+
+        entity.setFirstName(dto.getFirstName());
+        entity.setLastName(dto.getLastName());
+        entity.setEmail(dto.getEmail());
 
 
-		entity.getRoles().clear();
-		for (RoleDTO roleDTO : dto.getRoles()) {
-			Role role = roleRepository.getOne(roleDTO.getId());
-			entity.getRoles().add(role);
-		}
-	}
+        entity.getRoles().clear();
+        for (RoleDTO roleDTO : dto.getRoles()) {
+            Role role = roleRepository.getOne(roleDTO.getId());
+            entity.getRoles().add(role);
+        }
+    }
 }
