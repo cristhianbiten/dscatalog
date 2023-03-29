@@ -1,6 +1,7 @@
 package com.devsuperior.dscatalog.config;
 
-import com.devsuperior.dscatalog.components.JwtTokenEnhancer;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
-import java.util.Arrays;
+import com.devsuperior.dscatalog.components.JwtTokenEnhancer;
 
 @Configuration
 @EnableAuthorizationServer
@@ -23,22 +24,24 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Value("${security.oauth2.client.client-id}")
     private String clientId;
+
     @Value("${security.oauth2.client.client-secret}")
     private String clientSecret;
+
     @Value("${jwt.duration}")
     private Integer jwtDuration;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtAccessTokenConverter accessTokenConverter;
 
     @Autowired
     private JwtTokenStore tokenStore;
 
     @Autowired
     private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtAccessTokenConverter accessTokenConverter;
-
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private JwtTokenEnhancer tokenEnhancer;
