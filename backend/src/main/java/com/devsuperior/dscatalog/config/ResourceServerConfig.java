@@ -1,10 +1,7 @@
 package com.devsuperior.dscatalog.config;
-
-
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,9 +21,6 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
-
-    @Value("${cors.origins}")
-    private String corsOrigins;
 
     @Autowired
     private Environment env;
@@ -64,12 +58,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-
-        String[] origins = corsOrigins.split(",");
-
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOriginPatterns(Arrays.asList(origins));
+        corsConfig.setAllowedOriginPatterns(Arrays.asList("*"));
         corsConfig.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE", "PATCH"));
         corsConfig.setAllowCredentials(true);
         corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
@@ -80,7 +71,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
     }
 
     @Bean
-    FilterRegistrationBean<CorsFilter> corsFilter() {
+    public FilterRegistrationBean<CorsFilter> corsFilter() {
         FilterRegistrationBean<CorsFilter> bean
                 = new FilterRegistrationBean<>(new CorsFilter(corsConfigurationSource()));
         bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
