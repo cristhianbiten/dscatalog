@@ -18,17 +18,17 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductServiceIT {
 
     @Autowired
-    private ProductService productService;
+    private ProductService service;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductRepository repository;
 
     private Long existingId;
     private Long nonExistingId;
     private Long countTotalProducts;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() throws Exception {
         existingId = 1L;
         nonExistingId = 1000L;
         countTotalProducts = 25L;
@@ -36,16 +36,17 @@ public class ProductServiceIT {
 
     @Test
     public void deleteShouldDeleteResourceWhenIdExists() {
-        productService.delete(existingId);
 
-        Assertions.assertEquals(countTotalProducts - 1, productRepository.count());
+        service.delete(existingId);
 
+        Assertions.assertEquals(countTotalProducts - 1, repository.count());
     }
 
     @Test
-    public void deleteShouldThrowsResourceNotFoundExceptionWhenIdDoesNotExists() {
+    public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
+
         Assertions.assertThrows(ResourceNotFoundException.class, () -> {
-            productService.delete(nonExistingId);
+            service.delete(nonExistingId);
         });
     }
 
@@ -53,35 +54,35 @@ public class ProductServiceIT {
     public void findAllPagedShouldReturnPageWhenPage0Size10() {
 
         PageRequest pageRequest = PageRequest.of(0, 10);
-        Page<ProductDTO> result = productService.findAllPaged(pageRequest);
 
-        Assertions.assertEquals(countTotalProducts, result.getTotalElements());
-        Assertions.assertEquals(10, result.getSize());
-        Assertions.assertEquals(0, result.getNumber());
+        Page<ProductDTO> result = service.findAllPaged(0L, "", pageRequest);
+
         Assertions.assertFalse(result.isEmpty());
-
+        Assertions.assertEquals(0, result.getNumber());
+        Assertions.assertEquals(10, result.getSize());
+        Assertions.assertEquals(countTotalProducts, result.getTotalElements());
     }
+
     @Test
-    public void findAllPagedShouldReturnEmptyPageWhenPageDoesNotExists() {
+    public void findAllPagedShouldReturnEmptyPageWhenPageDoesNotExist() {
 
         PageRequest pageRequest = PageRequest.of(50, 10);
-        Page<ProductDTO> result = productService.findAllPaged(pageRequest);
+
+        Page<ProductDTO> result = service.findAllPaged(0L, "", pageRequest);
 
         Assertions.assertTrue(result.isEmpty());
-
     }
 
     @Test
-    public void findAllPagedShouldReturnSortedPageWhenSorteByName() {
+    public void findAllPagedShouldReturnSortedPageWhenSortByName() {
 
         PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("name"));
-        Page<ProductDTO> result = productService.findAllPaged(pageRequest);
+
+        Page<ProductDTO> result = service.findAllPaged(0L, "", pageRequest);
 
         Assertions.assertFalse(result.isEmpty());
         Assertions.assertEquals("Macbook Pro", result.getContent().get(0).getName());
         Assertions.assertEquals("PC Gamer", result.getContent().get(1).getName());
         Assertions.assertEquals("PC Gamer Alfa", result.getContent().get(2).getName());
     }
-
-
 }
