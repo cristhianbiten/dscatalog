@@ -47,7 +47,7 @@ public class ProductResourceIT {
         productDto = Factory.createProductDTO();
         existingId = 1L;
         nonExistingId = 1000L;
-        countTotalProducts = 26L;
+        countTotalProducts = 25L;
     }
 
     @Test
